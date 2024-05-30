@@ -58,17 +58,6 @@ fun (expected : exn) != (f : (unit -> 'z)) : raisesTestExn =
         This makes the current test case a failure. *)
      raise TestErr (exnMessage expected, "~ran successfully~"))
 
-(*
-  Returns ''a if comparison successful, fails the test otherwise.
-  This is useful to get around match exhaustiveness warnings when doing
-  'assertion-style' match-based testing like in Erlang.
-
-  let val res = (someOp() =?= ALLGOOD)
-
-  The above will fail the test if someOp does not return SOMERES, otherwise it'll
-  bind res to ALLGOOD
-*)
-
 fun (left : ''a) =?= (right : ''a) : ''a =
     if left = right
     then left

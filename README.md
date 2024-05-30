@@ -121,10 +121,24 @@ $ echo $?
 Assertions
 -----------------
 
+Let's take a look at the type of the `It` function above:
+
+```
+> Assert.It;
+val it = fn: string -> (unit -> Assert.raisesTestExn) -> Assert.tcase
+```
+
+It takes a string that describes the test case, and then a function typed
+`(unit -> Assert.raisesTestExn)`. How do we obtain such a function? By
+embedding within its body one of the assertions offered by the module. The are
+listed below.
+
+
+
 ### succeed (msg : string)
 
-Use this to 'manually' pass a test. For example, when the data under test
-doesn't support equality.
+This assertion 'manually' passes a test. For example, in cases where the data
+under test doesn't support equality.
 
 ```
 > val t1 = T (fn () => if Real.==(Real.*(2.0, 2.0), 4.0)
@@ -151,8 +165,9 @@ val it = ("FAILED \n\treals not equal <> ~explicit fail~\n", false):
 
 ### (left : ''a) == (right : ''a)
 
-Fails the test case if `left` and `right` are not equal. The string description
-will contain string representations of the data (courtesy of `PolyML.makestring`).
+Fails the test case if `left` and `right` are not equal. The frist element of
+the testresult will contain string representations of the data (courtesy of
+`PolyML.makestring`).
 
 ```
 > val t4 = T (fn () => {a="record"} == {a="cd"});
@@ -209,7 +224,19 @@ This is a classic "assert" function, in the sense that it will simply return
 will fail the entire test case.
 
 Useful for getting around match exhaustiveness warnings when doing
-'assertion-style' match-based testing, like in Erlang:
+'assertion-style' match-based testing, like in Erlang. This approach is
+problematic in Standard ML, because "assertively" matching on expected values
+will generate "Matches are not exhaustive" messages, like below:
+
+```
+  let val ALGOOD = (someOp() =?= ALLGOOD);
+      val foo = worksOnAllGood(ALLGOOD);
+      ...
+```
+
+If we'd like to get rid of all exhaustiveness warnings, we can use `=?=` to
+encode our expectations on the right side of the match, while keeping the left
+side non-specific, like so:
 
 ```
   let val ag = (someOp() =?= ALLGOOD);
@@ -217,7 +244,6 @@ Useful for getting around match exhaustiveness warnings when doing
       ...
 ```
 
-The above will fail the test if `someOp` does not return ALLGOOD.
-If it does, it'll bind `ag` to `ALLGOOD` and proceed.
-
-
+The above will fail the test if `someOp` does not return ALLGOOD. If it does,
+it'll bind `ag` to `ALLGOOD` and proceed to evaluate subsequent expressions as
+normal.
