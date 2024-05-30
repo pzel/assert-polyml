@@ -1,5 +1,5 @@
-Assert: Ergonomic testing for Poly/ML
-=====================================
+Assert: An ergonomic testing library for Poly/ML
+================================================
 
 ```
 signature ASSERT = sig
