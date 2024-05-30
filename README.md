@@ -24,7 +24,7 @@ ___________________________________________________
 TLDR: How to use this
 ---------------------
 
-### 1: Include the file [assert.sml](tree/master/item/assert.sml) in your project.
+### 1: Include the file [assert.sml](assert.sml) in your project.
 
 ```
 use "assert";
