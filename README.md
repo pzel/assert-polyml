@@ -24,49 +24,49 @@ ___________________________________________________
 TLDR: How to use this
 ---------------------
 
-1) Include the file [assert.sml](tree/master/item/assert.sml) in your project.
+### 1: Include the file [assert.sml](tree/master/item/assert.sml) in your project.
 
-  ```
-  use "assert"
-  ```
+```
+use "assert"
+```
 
-2) Open the `Assert` module and declare the fixity of the assertion functions:
+### 2: Open the `Assert` module and declare the fixity of the assertion functions:
 
-  ```
-  open Assert;
-  infixr 2 == != =/= =?=;
-  ```
+```
+open Assert;
+infixr 2 == != =/= =?=;
+```
 
-3) Write some tests:
+### 3: Write some tests:
 
-  ```
-  val myTests = [
-    It "adds integers" (fn() => 2 + 2 == 5),
-    It "concatenates strings" (fn() => "foo" ^ "bar" == "foolbar"),
-    It "raises Subscript" (fn()=> Subscript != (fn() => String.sub("hello", 1)))
-  ];
-  ```
+```
+val myTests = [
+  It "adds integers" (fn() => 2 + 2 == 5),
+  It "concatenates strings" (fn() => "foo" ^ "bar" == "foolbar"),
+  It "raises Subscript" (fn()=> Subscript != (fn() => String.sub("hello", 1)))
+];
+```
 
-4) Run your tests (this will exit the process with a POSIX error code):
+### 4: Run your tests (this will exit the process with a POSIX error code):
 
-  ```
-  runTests myTests;
+```
+> runTests myTests;
 
-  FAILED adds integers
-  	4 <> 5
+FAILED adds integers
+	4 <> 5
 
-  FAILED concatenates strings
-  	"foobar" <> "foolbar"
+FAILED concatenates strings
+	"foobar" <> "foolbar"
 
-  FAILED raises Subscript
-  	Subscript <> ~ran successfully~
+FAILED raises Subscript
+	Subscript <> ~ran successfully~
 
 
-  TESTS FAILED: 3/3
+TESTS FAILED: 3/3
 
-  $ echo $?
-  1
-  ```
+$ echo $?
+1
+```
 
 ___________________________________________________
 
