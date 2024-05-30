@@ -19,62 +19,68 @@ signature ASSERT = sig
 end
 ```
 
+___________________________________________________
+
 TLDR: How to use this
 ---------------------
 
 1) Include the file [assert.sml](tree/master/item/assert.sml) in your project.
-```
-use "assert"
-```
+
+  ```
+  use "assert"
+  ```
 
 2) Open the `Assert` module and declare the fixity of the assertion functions:
 
-```
-open Assert;
-infixr 2 == != =/= =?=;
-```
+  ```
+  open Assert;
+  infixr 2 == != =/= =?=;
+  ```
 
 3) Write some tests:
 
-```
-val myTests = [
- It "adds integers" (fn() => 2 + 2 == 5),
- It "concatenates strings" (fn() => "foo" ^ "bar" == "foolbar"),
- It "raises Subscript" (fn()=> Subscript != (fn() => String.sub("hello", 1)))
-];
-```
+  ```
+  val myTests = [
+    It "adds integers" (fn() => 2 + 2 == 5),
+    It "concatenates strings" (fn() => "foo" ^ "bar" == "foolbar"),
+    It "raises Subscript" (fn()=> Subscript != (fn() => String.sub("hello", 1)))
+  ];
+  ```
 
 4) Run your tests (this will exit the process with a POSIX error code):
 
-```
-runTests myTests;
+  ```
+  runTests myTests;
 
-FAILED adds integers
-	4 # 5
+  FAILED adds integers
+  	4 <> 5
 
-FAILED concatenates strings
-	"foobar" # "foolbar"
+  FAILED concatenates strings
+  	"foobar" <> "foolbar"
 
-FAILED raises Subscript
-	Subscript # ~ran successfully~
+  FAILED raises Subscript
+  	Subscript <> ~ran successfully~
 
 
-TESTS FAILED: 3/3
+  TESTS FAILED: 3/3
 
-$ echo $?
-1
-```
+  $ echo $?
+  1
+  ```
 
+___________________________________________________
 
 Test constructors
 -----------------
 
 Create tests with either the `T` function
+
 ```
 T (fn () => 2 + 2 == 4)
 ```
 
 Or the `It` function:
+
 ```
 It "can put two and two together" (fn () => 2 + 2 == 4)
 ```
@@ -116,7 +122,7 @@ $ echo $?
 1
 ```
 
-
+___________________________________________________
 
 Assertions
 -----------------
@@ -165,7 +171,7 @@ val it = ("FAILED \n\treals not equal <> ~explicit fail~\n", false):
 
 ### (left : ''a) == (right : ''a)
 
-Fails the test case if `left` and `right` are not equal. The frist element of
+Fails the test case if `left` and `right` are not equal. The first element of
 the testresult will contain string representations of the data (courtesy of
 `PolyML.makestring`).
 
@@ -223,8 +229,8 @@ This is a classic "assert" function, in the sense that it will simply return
 `left` if it's equal to `right`, but if the two operands are *not* equal, it
 will fail the entire test case.
 
-Useful for getting around match exhaustiveness warnings when doing
-'assertion-style' match-based testing, like in Erlang. This approach is
+Useful for getting around match exhaustiveness warnings when you want
+match-based assertions throughout your test, like in Erlang. This approach is
 problematic in Standard ML, because "assertively" matching on expected values
 will generate "Matches are not exhaustive" messages, like below:
 
