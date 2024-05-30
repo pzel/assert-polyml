@@ -27,17 +27,17 @@ TLDR: How to use this
 ### 1: Include the file [assert.sml](tree/master/item/assert.sml) in your project.
 
 ```
-use "assert"
+use "assert";
 ```
 
-### 2: Open the `Assert` module and declare the fixity of the assertion functions:
+### 2: Open the `Assert` module and declare the fixity of the assertion functions.
 
 ```
 open Assert;
 infixr 2 == != =/= =?=;
 ```
 
-### 3: Write some tests:
+### 3: Write some tests.
 
 ```
 val myTests = [
@@ -47,7 +47,7 @@ val myTests = [
 ];
 ```
 
-### 4: Run your tests (this will exit the process with a POSIX error code):
+### 4: Run your tests and exit the process with a POSIX error code.
 
 ```
 > runTests myTests;
@@ -136,7 +136,7 @@ val it = fn: string -> (unit -> Assert.raisesTestExn) -> Assert.tcase
 
 It takes a string that describes the test case, and then a function typed
 `(unit -> Assert.raisesTestExn)`. How do we obtain such a function? By
-embedding within its body one of the assertions offered by the module. The are
+embedding within its body one of the assertions offered by the module. They are
 listed below.
 
 
@@ -253,3 +253,6 @@ side non-specific, like so:
 The above will fail the test if `someOp` does not return ALLGOOD. If it does,
 it'll bind `ag` to `ALLGOOD` and proceed to evaluate subsequent expressions as
 normal.
+
+  
+
