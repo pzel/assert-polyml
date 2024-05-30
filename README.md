@@ -1,6 +1,23 @@
 Assert: Ergonomic testing for Poly/ML
 =====================================
 
+```
+signature ASSERT = sig
+  type testresult = (string * bool);
+  type tcase;
+  type raisesTestExn;
+  val It : string -> (unit -> raisesTestExn) -> tcase;
+  val T : (unit -> raisesTestExn) -> tcase;
+  val succeed : string -> raisesTestExn;
+  val fail : string -> raisesTestExn;
+  val == : (''a * ''a) -> raisesTestExn;
+  val =/= : (''a * ''a) -> raisesTestExn;
+  val != : (exn * (unit -> 'z)) -> raisesTestExn;
+  val =?= : (''a * ''a) -> ''a;
+  val runTest : tcase -> testresult;
+  val runTests : tcase list -> unit;
+end
+```
 
 TLDR: How to use this
 ---------------------

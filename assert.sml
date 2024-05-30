@@ -20,7 +20,10 @@ structure Assert = struct
 exception TestOK of string * string;
 exception TestErr of string * string;
 type raisesTestExn = unit;
+datatype raisesTestExn = Never of unit;
 infixr 2 == != =/= =?=;
+
+fun N (a: 'a) : raisesTestExn = Never (ignore a);
 
 type testresult = (string * bool);
 datatype tcase = TC of (string * (unit -> raisesTestExn))
@@ -35,17 +38,17 @@ fun fail (msg : string) : raisesTestExn =
     raise TestErr (msg, "~explicit fail~")
 
 fun (left : ''a) == (right : ''a) : raisesTestExn =
-    ignore(if left = right
+    N(if left = right
            then raise TestOK (PolyML.makestring left, PolyML.makestring right)
            else raise TestErr (PolyML.makestring left, PolyML.makestring right))
 
 fun (left : ''a) =/= (right : ''a) : raisesTestExn =
-    ignore(if left = right
+    N(if left = right
            then raise TestErr (PolyML.makestring left, PolyML.makestring right)
            else raise TestOK (PolyML.makestring left, PolyML.makestring right))
 
 fun (expected : exn) != (f : (unit -> 'z)) : raisesTestExn =
-    (ignore(ignore(f())
+    (N(ignore(f())
             handle e => let val (exp, got) = (exnMessage expected, exnMessage e);
                         in if exp = got
                            then raise TestOK (exp, got)
@@ -84,6 +87,7 @@ fun runTest ((TC (desc,f)) : tcase) : testresult =
             in concat (["exception ", exnMessage e, " at: "] @ locmsg)
             end;
     in
+                       (* this outcome is likely unreachable now that raisesTestExn is opaque *)
       ( f ();             (fmt ("ERROR", "~no assertion in test body~"), false))
       handle
       TestOK(a,b) =>   (fmt ("OK",  a^" = "^b), true)

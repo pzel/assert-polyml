@@ -15,7 +15,6 @@ fun main() =
           T(fn()=> {a = "a", b=2} == {a = "A", b=2}),
           T(fn()=> Subscript != (fn()=> tl(tl[1]))),
           T(fn()=> Empty != (fn()=> hd [1])),
-          T(fn()=> ignore(2 + 2)),
           T(fn()=> TestExn("hellop") != (fn()=> raise TestExn("hello"))), (*fails*)
           T(fn()=> fail("this should never happen"))
         ];
