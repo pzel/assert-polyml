@@ -7,7 +7,8 @@ fun main() =
         val passingTests = [
           It "adds numbers correctly" (fn() => 3 + 3 == 6),
           It "can compare record types" (fn() => {a=1} == {a=1}),
-          It "can assert that an exn was raised" (fn()=> TestExn("hello") != (fn()=> raise TestExn("hello")))
+          It "can assert that an exn was raised" (fn()=> TestExn("hello") != (fn()=> raise TestExn("hello"))),
+          Pending "can mark test as pended" (fn()=> String.sub("", 234) == #"X")
         ];
         val failingTests = [
           T(fn () => 3 + 2 == 4),
