@@ -8,6 +8,7 @@ signature ASSERT = sig
   type raisesTestExn;
   val It : string -> (unit -> raisesTestExn) -> tcase;
   val T : (unit -> raisesTestExn) -> tcase;
+  val Pending : string -> (unit -> raisesTestExn) -> tcase;
   val succeed : string -> raisesTestExn;
   val fail : string -> raisesTestExn;
   val == : (''a * ''a) -> raisesTestExn;
@@ -84,6 +85,13 @@ Or the `It` function:
 ```
 It "can put two and two together" (fn () => 2 + 2 == 4)
 ```
+
+Or, if you want to exclude the test from execution:
+
+```
+Pending "this is for later" (fn () => a() == b())
+```
+
 
 You can run an individual test with `runTest`:
 
@@ -235,7 +243,7 @@ problematic in Standard ML, because "assertively" matching on expected values
 will generate "Matches are not exhaustive" messages, like below:
 
 ```
-  let val ALGOOD = (someOp() =?= ALLGOOD);
+  let val ALLGOOD = someOp();
       val foo = worksOnAllGood(ALLGOOD);
       ...
 ```
@@ -255,4 +263,3 @@ it'll bind `ag` to `ALLGOOD` and proceed to evaluate subsequent expressions as
 normal.
 
   
-
