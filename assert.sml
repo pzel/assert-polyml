@@ -20,7 +20,6 @@ structure Assert = struct
 
 exception TestOK of string * string;
 exception TestErr of string * string;
-type raisesTestExn = unit;
 datatype raisesTestExn = Never of unit;
 infixr 2 == != =/= =?=;
 
@@ -30,10 +29,10 @@ type testresult = (string * bool);
 datatype tcase = TC of (string * (unit -> raisesTestExn))
 
 fun succeed (msg : string) : raisesTestExn =
-    raise TestOK (msg, msg)
+    N (raise TestOK (msg, msg))
 
 fun fail (msg : string) : raisesTestExn =
-    raise TestErr (msg, "~explicit fail~")
+    N (raise TestErr (msg, "~explicit fail~"))
 
 fun It desc tcase = TC(desc, tcase)
 fun T tcase = TC("", tcase)
