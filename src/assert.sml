@@ -12,6 +12,7 @@ signature ASSERT = sig
   val != : (exn * (unit -> 'z)) -> raisesTestExn;
   val =?= : (''a * ''a) -> ''a;
   val runTest : tcase -> testresult;
+  val runTestsWith : (testresult list -> 'a) -> tcase list -> 'a;
   val runTests : tcase list -> unit;
 end
 
@@ -57,7 +58,7 @@ fun (expected : exn) != (f : (unit -> 'z)) : raisesTestExn =
                         end);
      (* We ran left() without any errors, even though we expected them.
         This makes the current test case a failure. *)
-     raise TestErr (exnMessage expected, "~ran successfully~"))
+     raise TestErr (exnMessage expected, "~did not raise~"))
 
 fun (left : ''a) =?= (right : ''a) : ''a =
     if left = right
@@ -83,25 +84,31 @@ fun runTest ((TC (desc,f)) : tcase) : testresult =
            | exn =>          (fmt ("ERROR", ppExn exn), false)
     end
 
+fun runTestsWith (finalizer: (testresult list) -> 'a) (tests : tcase list) : 'a = finalizer (map runTest tests)
+
 fun runTests (tests : tcase list) =
     let
-      val results = map runTest tests;
-      val errors = List.filter (fn (_, n) => not n) results;
-      val successes = List.filter (fn (_, n) => n) results;
-      val error_count = length errors;
-      val test_count = length results;
-      val p = fn s => ignore(print (s ^"\n"));
-      val i = Int.toString;
-      val error_ratio = concat [i error_count, "/", i test_count];
-      val success_ratio = concat [i test_count, "/", i test_count]
+      fun finalizer (results) =
+          let
+            val errors = List.filter (fn (_, n) => not n) results;
+            val successes = List.filter (fn (_, n) => n) results;
+            val error_count = length errors;
+            val test_count = length results;
+            val p = fn s => ignore(print (s ^"\n"));
+            val i = Int.toString;
+            val error_ratio = concat [i error_count, "/", i test_count];
+            val success_ratio = concat [i test_count, "/", i test_count]
+          in
+            if error_count = 0
+            then p ("ALL TESTS PASSED: " ^ success_ratio)
+            else (p "";
+                  (* app (p o #1) successes; *) (* TODO: make this optional *)
+                  app (p o #1) errors;
+                  p ("\nTESTS FAILED: " ^ error_ratio ^ "\n");
+                  OS.Process.exit(OS.Process.failure))
+          end
     in
-      if error_count = 0
-      then p ("ALL TESTS PASSED: " ^ success_ratio)
-      else (p "";
-            (* app (p o #1) successes; *) (* TODO: make this optional *)
-            app (p o #1) errors;
-            p ("\nTESTS FAILED: " ^ error_ratio ^ "\n");
-            OS.Process.exit(OS.Process.failure))
+      runTestsWith finalizer tests
     end
 
 end : ASSERT

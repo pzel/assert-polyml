@@ -1,7 +1,7 @@
 .PHONY: test
 
-test: assertTest
-	./assertTest
+test:
+	polymlb -o ./bin/runTests runTests.mlb && ./bin/runTests
 
 assertTest: assertTest.sml assert.sml
 	polyc $< -o $@
