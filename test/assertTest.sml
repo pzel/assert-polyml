@@ -23,12 +23,11 @@ val passingTests = [
 ];
 
 val failingTests = [
-  T(fn () => 3 + 2 == 4),
-  T(fn () => 2 + 2 =/= 4),
-  T(fn ()=> 3 + 3 == ~1),
-  T(fn ()=> {a = "a", b=2} == {a = "A", b=2}),
+  It "fails int equality when not equal" (fn () => 3 + 2 == 4),
+  It "fails int inequality when equal" (fn () => 2 + 2 =/= 4),
+  It "fails record inequality when values differ" (fn ()=> {a = "a", b=2} == {a = "A", b=2}),
   It "can fail explicitly" (fn() => fail "not good"),
-  It "a failing assertion in the fun body fails the test" (
+  It "a failing assertion anywhere in the fun body fails the test" (
     fn() =>
        let val x = (2 =?= 2 + 0);
            val y = (30 =?= x + 1);
