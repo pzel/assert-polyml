@@ -1,5 +1,3 @@
-open Assert
-infixr 2 == != =/= =?=;
 exception TestExn of string;
 
 fun mkFin (db: testresult list ref) : (testresult list -> unit) =
