@@ -46,46 +46,34 @@ val failingTests = [
 ];
 
 
-fun assertPassedTests db =
-    let
-      val results = ! db;
-    in
-      List.all(
-        fn (tr) =>
-           if #2 tr
-           then (print ("Expected success:\n"
-                 ^ (#1 tr)
-                 ^ "\n"); true)
-           else (print ("Unexpected success:\n"
-                 ^ (#1 tr)
-                 ^ "\n"); false))
-              results
-    end
+fun assertPassedTests results =
+    List.all(
+      fn (tr) =>
+         if #2 tr
+         then (print ("Expected success:\n"
+                      ^ (#1 tr)
+                      ^ "\n"); true)
+         else (print ("Unexpected success:\n"
+                      ^ (#1 tr)
+                      ^ "\n"); false))
+            results
 
-fun assertFailedTests db =
-    let
-      val results = ! db;
-    in
-      List.all(
-        fn (tr) =>
-           if not (#2 tr)
-           then (print ("Expected failure:\n"
-                 ^ (#1 tr)
-                 ^ "\n"); true)
-           else (print ("Unexpected failure:\n"
-                 ^ (#1 tr)
-                 ^ "\n"); false))
-              results
-    end
+fun assertFailedTests results =
+    List.all(
+      fn (tr) =>
+         if not (#2 tr)
+         then (print ("Expected failure:\n"
+                      ^ (#1 tr)
+                      ^ "\n"); true)
+         else (print ("Unexpected failure:\n"
+                      ^ (#1 tr)
+                      ^ "\n"); false))
+            results
 
 fun main () =
     let
-      val passedDb : testresult list ref = ref [];
-      val failedDb : testresult list ref = ref [];
-      val _ = runTestsWith (mkFin passedDb) passingTests;
-      val _ = runTestsWith (mkFin failedDb) failingTests;
-      val passed = assertPassedTests passedDb;
-      val failed = assertFailedTests failedDb;
+      val passed = assertPassedTests (map Assert.runTest passingTests);
+      val failed = assertFailedTests (map Assert.runTest failingTests);
     in
       if passed andalso failed
       then (print "OK\n"; OS.Process.exit(OS.Process.success))
