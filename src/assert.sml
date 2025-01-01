@@ -20,36 +20,36 @@ structure Assert = struct
 
 exception TestOK of string * string;
 exception TestErr of string * string;
-datatype raisesTestExn = Never of unit;
+datatype raisesTestExn = RAISES of unit;
 infixr 2 == != =/= =?=;
 
-fun N (a: 'a) : raisesTestExn = Never (ignore a);
+fun return (a: 'a) : raisesTestExn = RAISES (ignore a);
 
 type testresult = (string * bool);
 datatype tcase = TC of (string * (unit -> raisesTestExn))
 
 fun succeed (msg : string) : raisesTestExn =
-    N (raise TestOK (msg, msg))
+    return (raise TestOK (msg, msg))
 
 fun fail (msg : string) : raisesTestExn =
-    N (raise TestErr (msg, "~explicit fail~"))
+    return (raise TestErr (msg, "~explicit fail~"))
 
 fun It desc tcase = TC(desc, tcase)
 fun T tcase = TC("", tcase)
 fun Pending desc _ = TC(desc, fn () => succeed "~PENDING~")
 
 fun (left : ''a) == (right : ''a) : raisesTestExn =
-    N(if left = right
+    return (if left = right
            then raise TestOK (PolyML.makestring left, PolyML.makestring right)
            else raise TestErr (PolyML.makestring left, PolyML.makestring right))
 
 fun (left : ''a) =/= (right : ''a) : raisesTestExn =
-    N(if left = right
+    return (if left = right
            then raise TestErr (PolyML.makestring left, PolyML.makestring right)
            else raise TestOK (PolyML.makestring left, PolyML.makestring right))
 
 fun (expected : exn) != (f : (unit -> 'z)) : raisesTestExn =
-    (N(ignore(f())
+    (return (ignore(f())
             handle e => let val (exp, got) = (exnMessage expected, exnMessage e);
                         in if exp = got
                            then raise TestOK (exp, got)
