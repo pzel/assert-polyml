@@ -51,9 +51,10 @@ fun (left : ''a) =/= (right : ''a) : raisesTestExn =
 fun (expected : exn) != (f : (unit -> 'z)) : raisesTestExn =
     (return (ignore(f())
             handle e => let val (exp, got) = (exnMessage expected, exnMessage e);
+                            fun fmt e = "exception "^ exp;
                         in if exp = got
-                           then raise TestOK (exp, got)
-                           else raise TestErr (exp, got)
+                           then raise TestOK (fmt exp, fmt got)
+                           else raise TestErr (fmt exp, fmt got)
                         end);
      (* We ran left() without any errors, even though we expected them.
         This makes the current test case a failure. *)
