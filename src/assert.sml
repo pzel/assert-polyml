@@ -66,7 +66,8 @@ fun (left : ''a) =?= (right : ''a) : ''a =
 
 
 fun runTest ((TC (desc,f)) : tcase) : testresult =
-    let fun fmt (result, data) = String.concat([result, " ", desc, "\n\t", data, "\n"]);
+    let fun fmt (result, data) =
+            String.concat([result, " ", desc, "\n\t", data, "\n"]);
         fun ppExn (e : exn) : string =
             let val loc = PolyML.exceptionLocation e;
                 val locmsg =
@@ -76,10 +77,11 @@ fun runTest ((TC (desc,f)) : tcase) : testresult =
             in concat (["exception ", exnMessage e, " at: "] @ locmsg)
             end;
     in
-                       (* this outcome is likely unreachable now that raisesTestExn is opaque *)
+                       (* this outcome is likely uncompileable now
+                          that raisesTestExn is opaque *)
       ( f ();             (fmt ("ERROR", "~no assertion in test body~"), false))
-      handle TestOK(a,b) =>  (fmt ("OK",  a^" = "^b), true)
-           | TestErr(a,b) => (fmt ("FAILED", a^" <> "^b),  false)
+      handle TestOK(a,b) =>  (fmt ("OK",  "left:  "^a^"\n\tright: "^b), true)
+           | TestErr(a,b) => (fmt ("FAILED", "left:  "^a^"\n\tright: "^b), false)
            | exn =>          (fmt ("ERROR", ppExn exn), false)
     end
 
