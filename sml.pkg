@@ -1,0 +1,4 @@
+package github.com/pzel/assert-polyml
+
+require {
+}
