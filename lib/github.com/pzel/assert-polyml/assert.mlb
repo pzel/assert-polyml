@@ -1,8 +1,8 @@
 local
 $(SML_LIB)/basis/basis.mlb
 $(SML_LIB)/basis/poly.mlb
-src/assert.sml
+assert.sml
 in
 structure Assert
-src/assert-open.sml
+assert-open.sml
 end

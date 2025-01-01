@@ -1,5 +1,6 @@
 .PHONY: test
+LIBDIR := lib/github.com/pzel/assert-polyml
 
-test: $(shell find . | grep .sml$$)
-	polymlb -o ./bin/runTests -- runTests.mlb && ./bin/runTests
+test: $(shell find $(LIBDIR) | grep .sml$$)
+	polymlb -o ./bin/runTests -- $(LIBDIR)/test/runTests.mlb && ./bin/runTests
 
