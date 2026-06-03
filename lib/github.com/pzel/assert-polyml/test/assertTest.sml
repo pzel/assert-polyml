@@ -3,6 +3,8 @@ exception TestExn of string;
 fun mkFin (db: testresult list ref) : (testresult list -> unit) =
     fn (testresults) => ignore (db := testresults) ;
 
+fun identity a = a;
+
 val passingTests = [
   It "asserts on int equality" (fn() => 3 + 3 == 6),
   It "asserts on int inequality" (fn() => 3 + 3 =/= 7),
@@ -21,6 +23,17 @@ val passingTests = [
   Pending "can mark test as pended" (
     fn()=> String.sub("", 234) == #"X") (* will not be eval'd *)
 ];
+
+val explicitShowPassingTests = [
+  It "can assert with a specific printer (int)" (
+    fn () => Assert.eq Int.toString (3+3, 6)),
+  It "can assert with a specific printer (string)" (
+    fn () => Assert.eq identity ("ab" ^ "c", "abc")),
+  It "can assert with a specific printer (record)" (
+    fn () => let fun show(re as {a: int, b: string}) = PolyML.makestring re;
+             in Assert.eq show ({a= 1, b="b"}, {a=1, b="b"})
+             end)
+]
 
 val failingTests = [
   It "fails int equality when not equal" (fn () => 3 + 2 == 4),
@@ -42,8 +55,21 @@ val failingTests = [
   T(fn ()=> Empty != (fn()=> hd [1])),
   T(fn ()=> TestExn("wrong message") != (fn()=> raise TestExn("hello"))),
   T(fn ()=> TestExn("Not this exception type") != (fn()=> hd [])),
+  T(fn ()=> TestExn("Not this exception type") != (fn()=> hd [])),
   T(fn ()=> fail("this should never happen"))
 ];
+
+val explicitShowFailingTests = [
+  It "can assert with a specific printer (int)" (
+    fn () => Assert.eq Int.toString (3+3, 7)),
+  It "can assert with a specific printer (string)" (
+    fn () => Assert.eq identity ("ab" ^ "c", "abcd")),
+  It "can assert with a specific printer (record)" (
+    fn () => let fun show(re as {a: int, b: string}) = PolyML.makestring re;
+             in Assert.eq show ({a= 1, b="b"}, {a=10, b="hello"})
+             end)
+];
+
 
 
 fun assertPassedTests results =
@@ -72,8 +98,11 @@ fun assertFailedTests results =
 
 fun main () =
     let
-      val passed = assertPassedTests (map Assert.runTest passingTests);
-      val failed = assertFailedTests (map Assert.runTest failingTests);
+      val runAll = map Assert.runTest
+      val goodTests = passingTests @ explicitShowPassingTests
+      val badTests = failingTests @ explicitShowFailingTests
+      val passed = assertPassedTests (runAll goodTests)
+      val failed = assertFailedTests (runAll badTests)
     in
       if passed andalso failed
       then (print "OK\n"; OS.Process.exit(OS.Process.success))

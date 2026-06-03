@@ -11,6 +11,12 @@ signature ASSERT = sig
   val =/= : (''a * ''a) -> raisesTestExn;
   val != : (exn * (unit -> 'z)) -> raisesTestExn;
   val =?= : (''a * ''a) -> ''a;
+
+  (* V2 API: Poly no longer carries type info at runtime, 
+     so PolyML.makestring will always spit out '?' *)
+  val eq : (''a -> string) -> (''a * ''a) -> raisesTestExn;
+  val neq : (''a -> string) -> (''a * ''a) -> raisesTestExn;
+
   val runTest : tcase -> testresult;
   val runTests : tcase list -> unit;
 end
@@ -38,20 +44,27 @@ fun It desc tcase = TC(desc, tcase)
 fun T tcase = TC("", tcase)
 fun Pending desc _ = TC(desc, fn () => succeed "~PENDING~")
 
-fun (left : ''a) == (right : ''a) : raisesTestExn =
+
+fun eq show (left : ''a, right: ''a) : raisesTestExn =
+    return (if left <> right
+           then raise TestErr (show left, show right)
+           else raise TestOK (show left, show right))
+
+fun neq show (left : ''a, right: ''a) : raisesTestExn =
     return (if left = right
-           then raise TestOK (PolyML.makestring left, PolyML.makestring right)
-           else raise TestErr (PolyML.makestring left, PolyML.makestring right))
+           then raise TestErr (show left, show right)
+           else raise TestOK (show left, show right))
+
+fun (left : ''a) == (right : ''a) : raisesTestExn =
+    eq PolyML.makestring (left, right)
 
 fun (left : ''a) =/= (right : ''a) : raisesTestExn =
-    return (if left = right
-           then raise TestErr (PolyML.makestring left, PolyML.makestring right)
-           else raise TestOK (PolyML.makestring left, PolyML.makestring right))
+    neq PolyML.makestring (left, right)
 
 fun (expected : exn) != (f : (unit -> 'z)) : raisesTestExn =
     (return (ignore(f())
-            handle e => let val (exp, got) = (exnMessage expected, exnMessage e);
-                            fun fmt e = "exception "^ exp;
+             handle e => let val (exp, got) = (exnMessage expected, exnMessage e);
+                            fun fmt e = "exception "^ e;
                         in if exp = got
                            then raise TestOK (fmt exp, fmt got)
                            else raise TestErr (fmt exp, fmt got)
