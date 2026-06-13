@@ -1,6 +1,17 @@
 Assert: An ergonomic testing library for Poly/ML
 ================================================
 
+## NOTE: This repo is superseded by [pzel/assert](https://github.com/pzel/assert) (June 2026)
+
+This library used to rely on idiosyncratic behavior on the part of the Poly/ML runtime, 
+which enabled it to print arbitrary values subject to test assertions.
+Poly/ML no longer has this behavior, so the library has been revamped and made 
+usable on any standard ml system that supports [MLB](http://mlton.org/MLBasis).
+
+Please refer to https://github.com/pzel/assert for the newest version of this library.
+
+___________________________________________________
+
 ```
 signature ASSERT = sig
   type testresult = (string * bool);
