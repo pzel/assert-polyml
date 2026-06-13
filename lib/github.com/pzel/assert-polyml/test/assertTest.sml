@@ -30,7 +30,7 @@ val explicitShowPassingTests = [
   It "can assert with a specific printer (string)" (
     fn () => Assert.eq identity ("ab" ^ "c", "abc")),
   It "can assert with a specific printer (record)" (
-    fn () => let fun show(re as {a: int, b: string}) = PolyML.makestring re;
+    fn () => let fun show(re as {a: int, b: string}) = Int.toString a ^b 
              in Assert.eq show ({a= 1, b="b"}, {a=1, b="b"})
              end)
 ]
@@ -53,9 +53,10 @@ val failingTests = [
        let val x = hd ([] : int list) in x + 2 == 3 end),
   T(fn ()=> Subscript != (fn()=> tl(tl[1]))),
   T(fn ()=> Empty != (fn()=> hd [1])),
-  T(fn ()=> TestExn("wrong message") != (fn()=> raise TestExn("hello"))),
-  T(fn ()=> TestExn("Not this exception type") != (fn()=> hd [])),
-  T(fn ()=> TestExn("Not this exception type") != (fn()=> hd [])),
+  It ("This test fails on MLTON due to " ^
+      "different handling of exn equality") 
+     (fn ()=> TestExn("wrong message") != (fn()=> raise TestExn("hello"))),
+  It "shows exception type" (fn ()=> TestExn("Not this exception type") != (fn()=> hd [])),
   T(fn ()=> fail("this should never happen"))
 ];
 
@@ -65,7 +66,7 @@ val explicitShowFailingTests = [
   It "can assert with a specific printer (string)" (
     fn () => Assert.eq identity ("ab" ^ "c", "abcd")),
   It "can assert with a specific printer (record)" (
-    fn () => let fun show(re as {a: int, b: string}) = PolyML.makestring re;
+    fn () => let fun show(re as {a: int, b: string}) = Int.toString a ^ b;
              in Assert.eq show ({a= 1, b="b"}, {a=10, b="hello"})
              end)
 ];

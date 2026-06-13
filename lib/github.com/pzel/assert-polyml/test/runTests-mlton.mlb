@@ -7,4 +7,6 @@ $(SML_LIB)/basis/basis.mlb
 
 (* tests *)
 assertTest.sml
+(* launch main () *)
+assertTestMlton.sml
 

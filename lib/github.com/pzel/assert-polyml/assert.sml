@@ -12,8 +12,10 @@ signature ASSERT = sig
   val != : (exn * (unit -> 'z)) -> raisesTestExn;
   val =?= : (''a * ''a) -> ''a;
 
-  (* V2 API: Poly no longer carries type info at runtime, 
-     so PolyML.makestring will always spit out '?' *)
+  (* V0.5+ API: Poly no longer carries type info at runtime, so
+     PolyML.makestring will always spit out '?'
+     unless the type is  known at compile-time
+   *)
   val eq : (''a -> string) -> (''a * ''a) -> raisesTestExn;
   val neq : (''a -> string) -> (''a * ''a) -> raisesTestExn;
 
@@ -40,8 +42,8 @@ fun succeed (msg : string) : raisesTestExn =
 fun fail (msg : string) : raisesTestExn =
     return (raise TestErr (msg, "~explicit fail~"))
 
-fun It desc tcase = TC(desc, tcase)
-fun T tcase = TC("", tcase)
+fun It desc t = TC(desc, t)
+fun T t = TC("", t)
 fun Pending desc _ = TC(desc, fn () => succeed "~PENDING~")
 
 
@@ -55,11 +57,14 @@ fun neq show (left : ''a, right: ''a) : raisesTestExn =
            then raise TestErr (show left, show right)
            else raise TestOK (show left, show right))
 
+fun showQuestionMark (_ : 'a) : string =
+    "?";
+
 fun (left : ''a) == (right : ''a) : raisesTestExn =
-    eq PolyML.makestring (left, right)
+    eq showQuestionMark (left, right)
 
 fun (left : ''a) =/= (right : ''a) : raisesTestExn =
-    neq PolyML.makestring (left, right)
+    neq showQuestionMark (left, right)
 
 fun (expected : exn) != (f : (unit -> 'z)) : raisesTestExn =
     (return (ignore(f())
@@ -76,20 +81,13 @@ fun (expected : exn) != (f : (unit -> 'z)) : raisesTestExn =
 fun (left : ''a) =?= (right : ''a) : ''a =
     if left = right
     then left
-    else raise (TestErr (PolyML.makestring left, PolyML.makestring right))
+    else raise (TestErr ("Assertion failed:", "~values not equal~"))
 
 
 fun runTest ((TC (desc,f)) : tcase) : testresult =
     let fun fmt (result, data) =
             String.concat([result, " ", desc, "\n\t", data, "\n"]);
-        fun ppExn (e : exn) : string =
-            let val loc = PolyML.exceptionLocation e;
-                val locmsg =
-                    case loc of
-                        SOME l  => [#file l, ":", Int.toString (#startLine l)]
-                      | NONE => ["<unknown location>"]
-            in concat (["exception ", exnMessage e, " at: "] @ locmsg)
-            end;
+        fun ppExn (e : exn) : string = "exception " ^ exnMessage e;
     in
                        (* this outcome is likely uncompileable now
                           that raisesTestExn is opaque *)
